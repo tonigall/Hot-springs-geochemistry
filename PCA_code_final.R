@@ -15,6 +15,8 @@ library(corrr)
 library(FactoMineR)
 library(factoextra)
 
+##load data
+
 geochem<-read.table("~/Desktop/geochem_hot_springs.csv", header=T, sep=",")
 head(geochem)
 str(geochem)
@@ -32,7 +34,7 @@ geochem$Country<-factor(geochem$Country)
 geochem$Area<-factor(geochem$Area)
 geochem$Paper<-factor(geochem$Paper)
 
-##perform PCA (without DO, S, temp, bedrock)
+##perform PCA 
 
 trim.data<-na.omit(geochem[,c(2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20)])
 head(trim.data)
