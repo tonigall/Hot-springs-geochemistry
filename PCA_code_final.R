@@ -1,11 +1,3 @@
-install.packages ('ggplot2')
-install.packages ('ggfortify')
-install.packages("ggcorrplot")
-install.packages("rcartocolor")
-install.packages("devtools")
-install.packages("corrr")
-install.packages("FactoMineR")
-install.packages("factoextra")
 library(ggplot2)
 library(ggfortify)
 library(ggcorrplot)
@@ -14,6 +6,8 @@ library(devtools)
 library(corrr)
 library(FactoMineR)
 library(factoextra)
+library(reshape2)
+library(cowplot)
 
 ##load data
 
@@ -60,9 +54,25 @@ geochem$Bedrock<-factor(geochem$Bedrock, levels = c("Basaltic", "Basaltic/Sandst
 
 trim.data$Bedrock<-factor(trim.data$Bedrock, levels = c("Basaltic", "Basaltic/Sandstone", "Basaltic/Rhyolitic", "Andesitic/Dacitic", "Rhyolitic/Basaltic", "Rhyolitic/Tuff", "Rhyolitic/Greywacke", "Rhyolitic/Siltstone", "Rhyolitic", "Glacial deposits", "Lacustrine deposits"))
 
-pcaplot<-autoplot(pca_res, data=trim.data, loadings = TRUE, loadings.label = TRUE, , loadings.color = "black")
+pca_final<-pcaplot<-autoplot(pca_res, data=trim.data, loadings = TRUE, loadings.label = TRUE, , loadings.color = "black")
 pcaplot + geom_point(aes(colour=Bedrock)) + scale_colour_carto_d(palette = "Safe") +
 theme_classic()
+
+##plot metal abundances against pH
+
+pH_metals<-read.table("~/Desktop/pH_metals.csv", header=T, sep=",")
+head(pH_metals)
+
+melt.pH<-melt(pH_metals, id.vars = "pH")
+
+pHplot<-ggplot(melt.pH, aes(x=pH, y=value, col = variable)) + 
+  geom_point() + scale_x_continuous(name = "pH", limits=c(0,10)) +
+  labs(y=expression("Concentration in fluid (ppb)"), color = expression("Metal")) +
+  theme_bw()  + scale_y_continuous(trans = 'log10') +
+  scale_color_manual(values = c("orangered", "steelblue", "gold", "lightblue3", "mediumslateblue", "pink3", "darkred", "navy", "yellow4") )+
+  geom_smooth(method = "lm")
+  
+plot_grid(pca_final, pHplot, labels = c('A', 'B'))
 
 ##models
 
